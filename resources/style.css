@@ -1,0 +1,70 @@
+/*
+html {
+    box-sizing: border-box;
+}*/
+/* Header */
+
+
+header {
+    background-color: #161b22;
+    position: absolute;
+    width: 100%;
+    color: white;
+    text-align: center;
+    height: 15vh;
+}
+
+header h1 {
+    font-size: 60px;
+}
+
+#header-image {
+    position:abolute;
+
+}
+
+
+/* Main */
+
+main {
+    position: relative;
+    top: 15vh;
+    height: 85vh;
+}
+
+#times-box {
+    width: 16vw;
+    height: 100%;
+    position:absolute;
+    left: 0;
+    /*margin: auto 0;*/
+    background-color: grey;
+}
+
+
+#levels-box {
+    width: 16vw;
+    height: 100%;
+    background-color: grey;
+    position: absolute;
+    right: 0;
+}
+
+#sudoku-game-box {
+    width: 68vw;
+    height: 100%;
+    background-color: lightblue;
+    position:absolute;
+    left: 16vw;
+    right: 16vw;
+}
+
+#sudoku-game {
+    width: 30vw;
+    height: 30vw;
+    background: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    display: block;
+    margin: 20px auto;
+}

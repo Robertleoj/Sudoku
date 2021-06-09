@@ -3,25 +3,41 @@
 <html>
     <head>
         <title>Minimal Sudoku</title>
-
+        <link href="./resources/style.css" rel="stylesheet">
+        <script defer="defer" src="./resources/sudoku_game.js"></script>
     </head>
     <body>
         <header>
             <div id="header-image">
-                <h1>Sudoku</h1>
             </div>
+            <h1>Sudoku</h1>
         </header>
         <main>
-            <div id="times">
+            <div id="times-box">
+                <div class="time-display">
+                    <p>Current Time: <span class="time">03:10</span>
+                </div>
+                <div class="time-display">
+                    <p>Best Time: <span class="time">03:10</span>
+                </div>
 
+                <div class="time-display">
+                    <p>Average Time: <span class="time">03:10</span>
+                </div>
             </div>
 
-            <div id="sudoku-game">
+            <div id="sudoku-game-box">
+                <canvas id='sudoku-game' width="50vw" height="50vw">
 
+                </canvas>
             </div>
 
-            <div id="levels">
-
+            <div id="levels-box">
+                <nav></nav>
+                <div id='level-list'>
+                    <h2>Level 1</h2>
+                    <h2>Level 2</h2>
+                </div>
             </div>
         </main>
 
