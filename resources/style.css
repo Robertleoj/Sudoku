@@ -1,35 +1,90 @@
-/*
+html, body, div, span, applet, object, iframe, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
 html {
     box-sizing: border-box;
-}*/
+    overflow: hidden;
+}
 /* Header */
 
+body {
+    width: 100vw;
+}
 
 header {
     background-color: #161b22;
-    position: absolute;
     width: 100%;
+    /* position: relative; */
+    /* top: -40px; */
     color: white;
     text-align: center;
-    height: 15vh;
 }
 
 header h1 {
     font-size: 60px;
+    padding: 40px 0;
+    margin: 0 0 10;
 }
 
-#header-image {
-    position:abolute;
+/* #header-image {
 
-}
+} */
 
 
 /* Main */
 
 main {
-    position: relative;
-    top: 15vh;
+    position:relative;
+    top: -40px;
     height: 85vh;
+    display:flex;
+    flex-direction: column;
+   
+}
+
+main > * {
+    flex-shrink: 0;
 }
 
 #times-box {
@@ -45,8 +100,9 @@ main {
 #levels-box {
     width: 16vw;
     height: 100%;
+    float: right;
     background-color: grey;
-    position: absolute;
+    /* position: absolute; */
     right: 0;
 }
 
@@ -57,6 +113,7 @@ main {
     position:absolute;
     left: 16vw;
     right: 16vw;
+    flex-grow: 1;
 }
 
 #sudoku-game {
