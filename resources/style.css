@@ -58,12 +58,14 @@ header {
     width: 100%;
     color: white;
     text-align: center;
+    height: 10vh;
 }
 
 header h1 {
     font-size: 60px;
     padding: 20px 0 0;
     vertical-align: middle;
+
 }
 
 #header-image {
@@ -76,7 +78,7 @@ header h1 {
 
 main {
     position: relative;
-    height: 85vh;
+    height: 90vh;
 }
 
 #times-box {
