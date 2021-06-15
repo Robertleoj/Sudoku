@@ -4,7 +4,7 @@
     <head>
         <title>Minimal Sudoku</title>
         <link href="./resources/style.css" rel="stylesheet">
-        <script defer="defer" src="./javascript/sudoku_game.js"></script>
+        <script defer type="module" src="./javascript/run_game.js"></script>
     </head>
     <body>
         <header>
@@ -27,9 +27,18 @@
             </div>
 
             <div id="sudoku-game-box">
-                <canvas id='sudoku-game' width="500" height="500">
+				<div id = 'sudoku-container'>
+					<div id = "sudoku-game">
+						<table id="sudoku-grid">
 
-                </canvas>
+						</table>
+					</div>
+
+						<table id = "sudoku-button-container">
+
+						</table>
+				</div>
+
             </div>
 
             <div id="levels-box">

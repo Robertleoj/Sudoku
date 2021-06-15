@@ -102,7 +102,7 @@ main {
 #sudoku-game-box {
     width: 68vw;
     height: 100%;
-    background-color: lightblue;
+    background-color: azure;
     position:absolute;
     left: 16vw;
     right: 16vw;
@@ -113,7 +113,50 @@ main {
     height: 30vw;
     background: white;
     border: 1px solid black;
-    border-radius: 12px;
     display: block;
     margin: 20px auto;
+	overflow: hidden;
 }
+
+/* The game itself */ 
+
+#sudoku-grid {
+	text-align: center;
+	height: 100%;
+	width: 100%;
+	vertical-align: middle;
+	margin: 0 auto;
+	font-size: 30px;
+}
+
+
+.cell {
+	width: 11%;
+	height: 11%;
+	vertical-align: middle;
+	border: 1px solid black;
+}
+
+.starting-cell {
+	background-color: lightblue;
+}
+
+
+
+#sudoku-button-container {
+	width: 35vw;
+	margin: 20px auto;
+}
+
+.num-button {
+	text-align: center;
+	vertical-align: middle;
+	padding: 4px 10px 10px;
+	margin: 5px;
+	height: 30px;
+	width: 30px;
+	background-color: white;
+	border: 1px solid black;
+	font-size: 3em;
+}
+
