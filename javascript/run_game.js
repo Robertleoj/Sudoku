@@ -4,12 +4,15 @@ import { gameGrid, solutionGrid } from "./make_game.js";
 
 const sudokuTable = document.getElementById('sudoku-grid');
 
+const completedCellClass = 'cell-completed';
+const selectedCellClass = 'cell-selected';
+const idleCellClass = 'cell-idle';
+
+const idleNumberButtonClass = 'num-button-idle';
+
 const cellArr = [];
 
 const thickBorder = '3px solid black';
-const regularCellHighlightColor = 'lightgrey';
-const startingCellHighlightColor = 'cornflowerblue';
-const startingCellColor = 'lightblue';
 
 sudokuTable.style.border = thickBorder;
 
@@ -31,299 +34,276 @@ class ScoreKeeper {
 }
 
 class SudokuCell {
-	constructor(cell, i, j){
-		this.cell = cell
-		this.i = i
-		this.j = j
+	constructor(number=null, i = null, j = null, completed=false){
+        
+		this._cell = this._initializeCell();
+
+        if (number) {
+            this.setValue(number)
+        }
+
+        if (i && j){
+            this._i = i;
+            this._j = j;
+        }
+        this._selectCallbacks = [];
 	}
+
+    get cell() {
+        return this._cell;
+    }
+    
+
+    _initializeCell(number = null) {
+        let cell = document.createElement('td');
+        cell.classList.add('cell');
+        cell.classList.add(idleCellClass);
+        return cell
+    }
+
+    setCoordinates(i, j){
+        this._i = i;
+        this._j = j;
+    }
+
+    _setCellClass(cellClass) {
+        this._cell.classList.remove(idleCellClass, completedCellClass, selectedCellClass);
+        this._cell.classList.add(cellClass);
+    }
+
+    markCompleted() {
+        this._setCellClass(completedCellClass);
+        this._clearCallbacks();
+    }
+
+    markIdle() {
+        this._setCellClass(idleCellClass);
+    }
+
+    markSelected() {
+        this._setCellClass(selectedCellClass);
+    }
+
+    setValue(value) {
+        this._cell.innerText = value;
+    }
+
+    getValue() {
+        return  Number(this._cell.innerText);
+    }
 
 	getCoordinates() {
-		return [this.i, this.j]
+		return [this._i, this._j]
 	}
+
+    addClickCallback(callback) {
+        this._selectCallbacks.push(callback);
+        this._cell.addEventListener('click', callback);
+    }
+
+    _clearCallbacks() {
+        for (let i =0; i< this._selectCallbacks.length; i++ ) {
+            this._cell.removeEventListener('click', this._selectCallbacks[i]);
+        }
+        this._selectCallbacks = [];
+    }
+
+
+    isCompleted() {
+        return this._cell.classList.contains(completedCellClass);
+    }
+    
+    isSelected() {
+        return this._cell.classList.contains(selectedCellClass);
+    }
+
+    isIdle() {
+        return this._cell.classList.contains(idleCellClass);
+    }
 }
 
-class Game {
-	constructor(gameGrid, solutionGrid) {
-		this.selected;
-		this.scoreKeeper = new ScoreKeeper(gameGrid);
-		this.gameGrid = gameGrid;
-		this.solutionGrid = solutionGrid;
-		this.sudCellArr;
-	}
-	highlight(cell, color=regularCellHighlightColor)  {
-		cell.style.backgroundColor = color;
-	}
 
-	unHighlight(cell) {
-		
-		if (!this.selected || this.selected.cell !== cell){
-			cell.style.backgroundColor = '';
-		}
-	}
+class SudokuBoard {
+    constructor(gameGrid, solutionGrid) {
+        this._boardTable;
+        this._boardArr;
+        this._initializeSudokuBoard(gameGrid);
+        this._solutionGrid = solutionGrid;
+        this._selected;
+    }
 
-	select(sudCell) {
-		this.unselect(this.selected)
-		sudCell.cell.style.backgroundColor = regularCellHighlightColor;
-		this.selected = sudCell;
-	}
+	_initializeSudokuBoard(gameGrid) {
+        this._boardArr = [];
+		for (let i=0; i < gameGrid.length; i++){
+            let boardArrRow = [];
 
-	unselect(sudCell)  {
-		if (this.selected){
-			sudCell.cell.style.backgroundColor = '';
-			this.selected = null;
-		}
-	}
-
-	initialize(){
-
-
-		for (let i=0; i < this.gameGrid.length; i++){
 			let row = document.createElement('tr');
 			
-			for (let j=0; j < this.gameGrid.length; j++){
+			for (let j=0; j < gameGrid.length; j++){
 
-				let cell = document.createElement('td');
-
-				let sudCell = new SudokuCell(cell, i, j);
-
-				cell.id = `cell ${i} ${j}`;
-
-				cell.classList.add('cell');
-
-				let num = this.gameGrid[i][j]
-
-				if (num !== 0){
-					cell.classList.add('starting-cell');
-					cell.style.backgroundColor = startingCellColor;
-					cell.innerText = num;
-					cell.addEventListener('mouseover', ()=>{this.highlight(cell, startingCellHighlightColor)})
-				} else {
-					cell.addEventListener('mouseover', ()=>{this.highlight(cell)});
-					cell.addEventListener('click', () => {this.select(sudCell)});
-				}
-
-				row.appendChild(cell);
-
-
-
-				if ((j+ 1) % 3 === 0 && j !== 8) {
-					cell.style.borderRight = thickBorder;
-				}
-
-				cell.addEventListener('mouseout',()=> {this.unHighlight(cell)});
-				
+                let num = gameGrid[i][j];
+				let sudCell = this._makeCell(num, i, j);
+				row.appendChild(sudCell.cell);
+                boardArrRow.push(sudCell);
 			}
 			if ((i + 1) % 3 === 0 && i !== 8) {
 				row.style.borderBottom = thickBorder;
 			}
-
+            this._boardArr.push(boardArrRow);
 			sudokuTable.appendChild(row);
 		}
+	}
 
-		const buttonContainer = document.getElementById('sudoku-button-container');
+	_makeCell(num, i, j) {
+        
+
+        let sudCell = new SudokuCell();
+        sudCell.setCoordinates(i, j);
+
+		if (num !== 0){
+			sudCell.innerText = num;
+            sudCell.setValue(num);
+            sudCell.markCompleted();
+		} else {
+			sudCell.addClickCallback(() => {this._select(sudCell)});
+            sudCell.addClickCallback(() => {sudCell.markSelected()});
+		}
+
+		if ((j+ 1) % 3 === 0 && j !== 8) {
+			sudCell.cell.style.borderRight = thickBorder;
+		}
+
+		return sudCell
+	}
+
+    _select(sudCell) {
+        if (this._selected){
+            if (this._selected.isSelected()){
+                this._selected.markIdle();
+            }
+        }
+        this._selected = sudCell;
+    }
+
+    tryInsert(num) {
+        if(this._selected) {
+            let coordinates = this._selected.getCoordinates();
+            let i = coordinates[0];
+            let j = coordinates[1];
+            if (this._solutionGrid[i][j] === num){
+                this._boardArr[i][j].setValue(num)
+                this._boardArr[i][j].markCompleted();
+            }
+        }
+    }
+
+}
+
+class NumberButton {
+    constructor(num) {
+        this._numButton;
+        this._clickCallbacks = [];
+        this._initializeNumberButton(num);
+
+    }
+
+    get numButton() {
+        return this._numButton;
+    }
+
+    setClickCallback(callback) {
+        this._clickCallbacks.push(callback);
+        this._numButton.addEventListener('click', callback);
+    }
+
+    clearClickCallbacks() {
+        for (let i = 0; i< this._clickCallbacks.length; i++) {
+            this._numButton.removeEventListener(this._clickCallbacks[i]);
+        }
+        this.clickCallbacks = [];
+    }
+
+    _initializeNumberButton(num) {
+        let numButton = document.createElement('td');
+        numButton.innerText = num;
+        numButton.classList.add('num-button');
+        this._numButton = numButton;
+        this.markIdle();
+    }
+
+    _setClass(numButtonClass) {
+        this._numButton.classList.remove(idleNumberButtonClass);
+        this._numButton.classList.add(numButtonClass);
+    }
+
+    /*
+    markCompleted() {
+        this._setCellClass(completedCellClass);
+        this._clearCallbacks();
+    }
+    */
+
+    markIdle() {
+        this._setClass(idleNumberButtonClass);
+    }
+
+    /*
+    markSelected() {
+        this._setCellClass(selectedCellClass);
+    }
+    */
+
+}
+
+class NumberButtons {
+    constructor() {
+        this._numberButtonsArr;
+        this.initializeNumberButtons();
+    }
+
+    initializeNumberButtons() {
+        const buttonContainer = document.getElementById('sudoku-button-container');
 		let row = document.createElement('tr');
+        let numberButtonsArr = [];
 
 		for (let i = 1; i <= 9; i++){
-			let numButton = document.createElement('td');
-			numButton.innerText = i;
-			numButton.id = `numButton ${i}`;
-			numButton.classList.add('num-button');
-			numButton.addEventListener('click', () => {this.inputNumber(i, numButton)})
-			numButton.addEventListener('mouseover', () => {this.highlight(numButton)})
-			numButton.addEventListener('mouseout',() => {this.unHighlight(numButton)} )
-			row.appendChild(numButton)
+
+            let numButton = new NumberButton(i);
+			row.appendChild(numButton.numButton)
+            numberButtonsArr.push(numButton);
 		}
 
 		buttonContainer.appendChild(row)
+        this._numberButtonsArr = numberButtonsArr;
 
+    }
+
+    setClickCallback(buttonNum, callback) {
+        this._numberButtonsArr[buttonNum - 1].setClickCallback(callback);
+    }
+}
+
+class Game {
+	constructor(gameGrid, solutionGrid) {
+
+        this.sudokuBoard = new SudokuBoard(gameGrid, solutionGrid);
+		this.scoreKeeper = new ScoreKeeper(gameGrid);
+        this.numberButtons = new NumberButtons();
+
+        this.initializeGame();
 
 	}
+	
 
-
-	correctInput(number){
-
-		this.selected.cell.innerText = number;
-		this.selected.cell.style.backgroundColor = startingCellColor;
-		this.selected.cell.parentNode.replaceChild(this.selected.cell.cloneNode(true), this.selected.cell);
-
-		this.selected = null;
-
-		this.scoreKeeper.foundOne();
-		if (this.scoreKeeper.hasWon()) {
-			this.win();
-		}
-	}
-
-	flashRed(el){
-		let curr_col = el.style.backgroundColor;
-		el.style.backgroundColor = 'red';
-		setTimeout(() => {
-			let other_col = el.style.backgroundColor;
-			
-			el.style.backgroundColor = other_col === 'red' ? curr_col: other_col;
-		}, 200);
-	}
-
-	incorrectInput(numButton) {
-		this.flashRed(this.selected.cell);
-		this.flashRed(numButton);
-	}
-
-
-	inputNumber(number, numButton) {
-		if (this.selected) {
-			let coordinates = this.selected.getCoordinates();
-			let i = coordinates[0];
-			let j = coordinates[1];
-			if (this.solutionGrid[i][j] === number){
-				this.correctInput(number);
-			} else {
-				this.incorrectInput(numButton);
-			}
-			
-		}
-	}
+    initializeGame() {
+        for (let i = 1; i <= 9; i++ ) {
+            this.numberButtons.setClickCallback(i, () => {this.sudokuBoard.tryInsert(i)});
+        }
+    }
 
 
 
 }
 
 const game = new Game(gameGrid, solutionGrid);
-game.initialize();
-
-
-
-/*
-
-let selected;
-
-let scoreKepper = new ScoreKeeper(gameGrid);
-
-const highlight = (cell, color=regularCellHighlightColor) => {
-	cell.style.backgroundColor = color;
-};
-
-const select = (sudCell) => {
-	unselect(selected)
-	sudCell.cell.style.backgroundColor = regularCellHighlightColor;
-	selected = sudCell;
-};
-
-const unselect = (sudCell) => {
-	if (selected){
-		sudCell.cell.style.backgroundColor = '';
-		selected = null;
-	}
-}
-
-
-const unHighlight = (cell) => {
-	
-	if (!selected || selected.cell !== cell){
-		cell.style.backgroundColor = '';
-	}
-};
-
-
-for (let i=0; i < gameGrid.length; i++){
-	let row = document.createElement('tr');
-
-	let cellArrRow = [];
-	
-	for (let j=0; j < gameGrid.length; j++){
-
-		let cell = document.createElement('td');
-
-		let sudCell = new SudokuCell(cell, i, j);
-
-		cell.id = `cell ${i} ${j}`;
-
-		cell.classList.add('cell');
-
-		let num = gameGrid[i][j]
-
-		if (num !== 0){
-			cell.classList.add('starting-cell');
-			cell.style.backgroundColor = startingCellColor;
-			cell.innerText = num;
-			cell.addEventListener('mouseover', ()=>{highlight(cell, startingCellHighlightColor)})
-		} else {
-			cell.addEventListener('mouseover', ()=>{highlight(cell)});
-			cell.addEventListener('click', () => {select(sudCell)});
-		}
-		row.appendChild(cell);
-
-
-		cellArrRow.push(sudCell);
-
-		if ((j+ 1) % 3 === 0 && j !== 8) {
-			cell.style.borderRight = thickBorder;
-		}
-
-		cell.addEventListener('mouseout',()=> {unHighlight(cell)});
-		
-	}
-	if ((i + 1) % 3 === 0 && i !== 8) {
-		row.style.borderBottom = thickBorder;
-	}
-
-	cellArr.push(cellArrRow);
-
-	sudokuTable.appendChild(row);
-}
-
-const correctInput = (number) => {
-	selected.cell.innerText = number;
-	selected.cell.removeEventListener('click', select);
-	selected.cell.removeEventListener('mouseover', highlight);
-	selected.cell.removeEventListener('mouseout', unHighlight);
-	selected.cell.style.backgroundColor = startingCellColor;
-	selected.cell.parentNode.replaceChild(selected.cell.cloneNode(true), selected.cell);
-	selected = null;
-	scoreKeeper.foundOne();
-	if (scoreKeeper.hasWon()) {
-		win();
-	}
-}
-
-const inputNumber = (number) => {
-	if (selected) {
-		let coordinates = selected.getCoordinates();
-		let i = coordinates[0];
-		let j = coordinates[1];
-		if (solutionGrid[i][j] === number){
-			correctInput(number);
-		} else {
-			incorrectInput(selected.cell);
-		}
-		
-	}
-}
-
-const buttonContainer = document.getElementById('sudoku-button-container');
-let row = document.createElement('tr');
-
-for (let i = 1; i <= 9; i++){
-	let numButton = document.createElement('td');
-	numButton.innerText = i;
-	numButton.id = `numButton ${i}`;
-	numButton.classList.add('num-button');
-	numButton.addEventListener('click', () => {inputNumber(i)})
-	numButton.addEventListener('mouseover', () => {highlight(numButton)})
-	numButton.addEventListener('mouseout',() => {unHighlight(numButton)} )
-	row.appendChild(numButton)
-}
-
-buttonContainer.appendChild(row)
-
-
-
-
-
-
-
-*/
-
-
-
 

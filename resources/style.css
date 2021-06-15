@@ -137,9 +137,32 @@ main {
 	border: 1px solid black;
 }
 
-.starting-cell {
+.cell-idle {
+    background-color: white;
+}
+
+.cell-idle:hover {
+    background-color: lightgrey;
+}
+
+
+
+.cell-completed {
 	background-color: lightblue;
 }
+.cell-completed:hover {
+    background-color: cornflowerblue;
+}
+
+.cell-selected {
+    background-color: darkgray;
+}
+
+.cell-selected:hover {
+    background-color: darkgray;
+}
+
+
 
 
 
@@ -155,8 +178,18 @@ main {
 	margin: 5px;
 	height: 30px;
 	width: 30px;
-	background-color: white;
 	border: 1px solid black;
 	font-size: 3em;
 }
+
+.num-button-idle {
+    background-color: white;
+}
+
+.num-button-idle:hover {
+    background-color: lightgrey;
+}
+
+
+   
 
