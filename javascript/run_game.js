@@ -7,8 +7,11 @@ const sudokuTable = document.getElementById('sudoku-grid');
 const completedCellClass = 'cell-completed';
 const selectedCellClass = 'cell-selected';
 const idleCellClass = 'cell-idle';
+const highlightedCellClass = 'cell-highlighted';
+const completedAllCellClass = 'cell-completed-all';
 
 const idleNumberButtonClass = 'num-button-idle';
+const completedNumberButtonClass = 'num-button-completed';
 
 const cellArr = [];
 
@@ -18,18 +21,33 @@ sudokuTable.style.border = thickBorder;
 
 class ScoreKeeper {
 	constructor(gameGrid){
-		this.numUnknown = gameGrid.reduce((unknown, currentLine) => {
-			currentLine.reduce((count, curr) => {return curr === 0? 1 : 0})
+
+        this._howManyLeft = {};
+
+        for (let i = 1; i<=9; i++ ){
+            this._howManyLeft[i] = 9;
+        }
+
+		gameGrid.forEach((currentLine) => {
+			currentLine.forEach((curr) => { 
+                curr = Number(curr);
+                if (curr !== 0){
+                    this._howManyLeft[curr] -= 1;
+                } 
+            })
 		});
+
 	}
 
-	foundOne() {
-		this.numUnknown -= 1;
+	foundOne(i) {
+		this._howManyLeft[i] -= 1;
+        return this._howManyLeft[i] === 0;
 	}
 
 	hasWon() {
 		return this.numUnknown === 0;
 	}
+
 
 }
 
@@ -52,7 +70,7 @@ class SudokuCell {
     get cell() {
         return this._cell;
     }
-    
+
 
     _initializeCell(number = null) {
         let cell = document.createElement('td');
@@ -82,6 +100,14 @@ class SudokuCell {
 
     markSelected() {
         this._setCellClass(selectedCellClass);
+    }
+
+    markHighlighted() {
+        this._setCellClass(highlightedCellClass);
+    }
+
+    markCompletedAll() {
+        this._setCellClass(completedAllCellClass);
     }
 
     setValue(value) {
@@ -120,6 +146,14 @@ class SudokuCell {
     isIdle() {
         return this._cell.classList.contains(idleCellClass);
     }
+
+    flashRed() {
+        this._cell.classList.add('red');
+        setTimeout( () => {
+            this._cell.classList.remove('red');
+        }, 100);
+    }
+
 }
 
 
@@ -183,7 +217,40 @@ class SudokuBoard {
             }
         }
         this._selected = sudCell;
+        // this._highLightAroundSelected();
     }
+
+    foundAll(num) {
+        for (let row of this._boardArr){
+            for (let sudCell of row) {
+                if (sudCell.getValue() == num) {
+                    sudCell.markCompletedAll();
+                }
+            }
+        }
+    }
+
+    /*
+    _highLightAroundSelected() {
+        let position = this._selected.getCoordinates();
+        let i_pos = position[0];
+        let j_pos = position[1];
+
+        for (let i = 0; i< 9;i++ ){
+            let x_el = this._boardArr[i_pos][i]
+            let y_el = this._boardArr[i][j_pos]
+            this._highlightIfIdle(x_el);
+            this._highlightIfIdle(y_el);
+
+        }
+    }
+
+    _highlightIfIdle(sudCell){
+        if (sudCell.isIdle()) {
+            sudCell.markHighlighted()
+        }
+    }
+    */
 
     tryInsert(num) {
         if(this._selected) {
@@ -193,9 +260,14 @@ class SudokuBoard {
             if (this._solutionGrid[i][j] === num){
                 this._boardArr[i][j].setValue(num)
                 this._boardArr[i][j].markCompleted();
+                return true;
+            } else {
+                this._boardArr[i][j].flashRed();
+                return false;
             }
         }
     }
+
 
 }
 
@@ -216,9 +288,9 @@ class NumberButton {
         this._numButton.addEventListener('click', callback);
     }
 
-    clearClickCallbacks() {
+    _clearClickCallbacks() {
         for (let i = 0; i< this._clickCallbacks.length; i++) {
-            this._numButton.removeEventListener(this._clickCallbacks[i]);
+            this._numButton.removeEventListener('click',this._clickCallbacks[i]);
         }
         this.clickCallbacks = [];
     }
@@ -236,17 +308,22 @@ class NumberButton {
         this._numButton.classList.add(numButtonClass);
     }
 
-    /*
     markCompleted() {
-        this._setCellClass(completedCellClass);
-        this._clearCallbacks();
+        this._setClass(completedNumberButtonClass);
+        this._clearClickCallbacks();
     }
-    */
 
     markIdle() {
         this._setClass(idleNumberButtonClass);
     }
 
+
+    flashRed() {
+        this._numButton.classList.add('red');
+        setTimeout( () => {
+            this._numButton.classList.remove('red');
+        }, 100);
+    }
     /*
     markSelected() {
         this._setCellClass(selectedCellClass);
@@ -281,7 +358,18 @@ class NumberButtons {
     setClickCallback(buttonNum, callback) {
         this._numberButtonsArr[buttonNum - 1].setClickCallback(callback);
     }
+
+    flashRed(num) {
+        this._numberButtonsArr[num - 1].flashRed();
+    }
+
+    foundAll(num) {
+        this._numberButtonsArr[num - 1].markCompleted();
+    }
+      
 }
+
+
 
 class Game {
 	constructor(gameGrid, solutionGrid) {
@@ -293,11 +381,26 @@ class Game {
         this.initializeGame();
 
 	}
+
+
 	
 
     initializeGame() {
+        
         for (let i = 1; i <= 9; i++ ) {
-            this.numberButtons.setClickCallback(i, () => {this.sudokuBoard.tryInsert(i)});
+            this.numberButtons.setClickCallback(i, () => {
+                let succeeded = this.sudokuBoard.tryInsert(i);
+                if (!succeeded) {
+                    this.numberButtons.flashRed(i);
+                } else {
+                    let foundAll = this.scoreKeeper.foundOne(i);
+                    if (foundAll) {
+                        this.sudokuBoard.foundAll(i);
+                        this.numberButtons.foundAll(i);
+                    }
+
+                }
+            });
         }
     }
 

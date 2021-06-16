@@ -52,6 +52,10 @@ html {
 }*/
 /* Header */
 
+html {
+    font-size: 1vw;
+}
+
 
 header {
     background-color: #161b22;
@@ -62,7 +66,7 @@ header {
 }
 
 header h1 {
-    font-size: 60px;
+    font-size: 3rem;
     padding: 20px 0 0;
     vertical-align: middle;
 
@@ -126,7 +130,7 @@ main {
 	width: 100%;
 	vertical-align: middle;
 	margin: 0 auto;
-	font-size: 30px;
+	font-size: 3rem;
 }
 
 
@@ -158,8 +162,12 @@ main {
     background-color: darkgray;
 }
 
-.cell-selected:hover {
+/* .cell-selected:hover {
     background-color: darkgray;
+} */
+
+.cell-highlighted {
+    background-color: lightgrey;
 }
 
 
@@ -188,6 +196,14 @@ main {
 
 .num-button-idle:hover {
     background-color: lightgrey;
+}
+
+.num-button-completed, .cell-completed-all {
+    background-color: seagreen;
+}
+
+.red {
+    background-color:red !important;
 }
 
 
