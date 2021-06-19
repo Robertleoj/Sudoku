@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Minimal Sudoku</title>
+        <link href="./style.css" rel="stylesheet">
+        <script defer type="module" src="./handler.js"></script>
+    </head>
+    <body>
+        <header>
+            <div id="header-image">
+            </div>
+            <h1>Sudoku</h1>
+        </header>
+        <main>
+            <div id="times-box">
+                <div class="time-display">
+                    <p>Current Time: <span class="time">03:10</span>
+                </div>
+                <div class="time-display">
+                    <p>Best Time: <span class="time">03:10</span>
+                </div>
+
+                <div class="time-display">
+                    <p>Average Time: <span class="time">03:10</span>
+                </div>
+            </div>
+
+            <div id="sudoku-game-box">
+                <label for='game-selector'>Select Game:</label>
+                <input id='game-selector' name='game-selector' type='number' value='1'>
+                <button id='selected-level'>Play!</button>
+				<div id = 'sudoku-container'>
+					<div id = "sudoku-game">
+						<table id="sudoku-grid">
+
+						</table>
+					</div>
+
+						<table id = "sudoku-button-container">
+
+						</table>
+				</div>
+
+            </div>
+
+            <div id="levels-box">
+                <nav></nav>
+                <div id='level-list'>
+                    <h2>Level 1</h2>
+                    <h2>Level 2</h2>
+                </div>
+            </div>
+        </main>
+
+    </body>
+
+</html>
