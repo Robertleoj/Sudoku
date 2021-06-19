@@ -6,7 +6,7 @@ const gameRouter = require('./games.js');
 
 
 
-const PORT = process.env.PORT || 8000;
+const PORT = 80; // process.env.PORT || 3000;
 
 app.use('/games', gameRouter);
 app.use(express.static('static'));

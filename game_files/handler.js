@@ -7,7 +7,7 @@ const gameSelectButton = document.getElementById('selected-level');
 const game = new Game();
 
 const startNewGame = async (gameNum) => {
-    let returnedGame = await fetch(`http://localhost:8000/games/${gameNum}`);
+    let returnedGame = await fetch(`http://www.playsudoku.cloud/games/${gameNum}`);
     console.log(returnedGame);
     console.log(gameNum);
     if (returnedGame) {
@@ -16,6 +16,8 @@ const startNewGame = async (gameNum) => {
         game.runGame(gameArrs[0], gameArrs[1]);
     }
 }
+
+startNewGame(gameSelector.value);
 
 
 gameSelectButton.addEventListener('click', () => startNewGame(gameSelector.value));
